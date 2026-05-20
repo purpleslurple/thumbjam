@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThumbJam</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="game-shell">
+    <header>
+      <h1>ThumbJam</h1>
+      <p>Tap the button to add drops and beat the CPU to the top!</p>
+    </header>
+
+    <section class="controls">
+      <div class="scoreboard">
+        <div class="score-card">
+          <h2>You</h2>
+          <p id="playerScore">0</p>
+        </div>
+        <div class="score-card cpu">
+          <h2>CPU</h2>
+          <p id="cpuScore">0</p>
+        </div>
+      </div>
+
+      <div class="status-panel">
+        <p id="status">Press START to play</p>
+        <label>
+          Target drops:
+          <select id="targetSelect">
+            <option value="25">25</option>
+            <option value="35" selected>35</option>
+            <option value="50">50</option>
+          </select>
+        </label>
+        <label>
+          Difficulty:
+          <select id="difficultySelect">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="button-row">
+        <button id="playButton" class="action-button">Add Drop</button>
+        <button id="startButton" class="action-button secondary">START</button>
+        <button id="resetButton" class="action-button secondary">RESET</button>
+      </div>
+    </section>
+
+    <section class="arena">
+      <div class="lane">
+        <div class="tower" id="playerTower"></div>
+        <span>Player</span>
+      </div>
+      <div class="lane cpu-lane">
+        <div class="tower" id="cpuTower"></div>
+        <span>CPU</span>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
