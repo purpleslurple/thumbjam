@@ -36,7 +36,7 @@ function setStatus(text) {
 
 function endGame(winner) {
   gameActive = false;
-  clearInterval(cpuInterval);
+  clearTimeout(cpuInterval);
   cpuInterval = null;
   setStatus(winner === 'player' ? 'Winner! Your drops hit the target first.' : 'CPU wins! Try again for a better score.');
   playButton.disabled = true;
@@ -78,13 +78,13 @@ function startGame() {
   playButton.disabled = false;
   updateDisplay();
   setStatus('Game on! Tap the button to add drops before the CPU reaches the target.');
-  clearInterval(cpuInterval);
+  clearTimeout(cpuInterval);
   cpuInterval = setTimeout(cpuStep, getCpuDelay());
 }
 
 function resetGame() {
   gameActive = false;
-  clearInterval(cpuInterval);
+  clearTimeout(cpuInterval);
   cpuInterval = null;
   playerScore = 0;
   cpuScore = 0;
@@ -110,7 +110,7 @@ targetSelect.addEventListener('change', () => {
 
 difficultySelect.addEventListener('change', () => {
   if (gameActive) {
-    clearInterval(cpuInterval);
+    clearTimeout(cpuInterval);
     cpuInterval = setTimeout(cpuStep, getCpuDelay());
   }
 });
