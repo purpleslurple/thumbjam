@@ -100,6 +100,10 @@ playButton.addEventListener('click', () => {
   checkWinner();
 });
 
+playButton.addEventListener('dblclick', (event) => {
+  event.preventDefault();
+});
+
 startButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', resetGame);
 

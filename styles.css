@@ -137,6 +137,7 @@ select {
   background: linear-gradient(135deg, var(--accent), #0d74b7);
   color: #08101f;
   box-shadow: 0 18px 30px rgba(28, 93, 158, 0.25);
+  touch-action: manipulation;
   transition: transform 0.18s ease, filter 0.18s ease;
 }
 
