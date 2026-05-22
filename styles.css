@@ -149,6 +149,10 @@ input::placeholder {
   color: rgba(246, 248, 255, 0.48);
 }
 
+.is-hidden {
+  display: none !important;
+}
+
 .multiplayer-panel {
   display: grid;
   grid-template-columns: 1fr;

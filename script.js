@@ -2,14 +2,19 @@ const playerScoreEl = document.getElementById('playerScore');
 const cpuScoreEl = document.getElementById('cpuScore');
 const playerLabelEl = document.getElementById('playerLabel');
 const opponentLabelEl = document.getElementById('opponentLabel');
+const playerLaneLabelEl = document.getElementById('playerLaneLabel');
+const opponentLaneLabelEl = document.getElementById('opponentLaneLabel');
 const playerTowerEl = document.getElementById('playerTower');
 const cpuTowerEl = document.getElementById('cpuTower');
 const statusEl = document.getElementById('status');
 const playButton = document.getElementById('playButton');
 const startButton = document.getElementById('startButton');
 const resetButton = document.getElementById('resetButton');
+const roundControls = document.getElementById('roundControls');
 const targetSelect = document.getElementById('targetSelect');
 const difficultySelect = document.getElementById('difficultySelect');
+const gameSettingsPanel = document.getElementById('gameSettingsPanel');
+const multiplayerPanel = document.getElementById('multiplayerPanel');
 const hostButton = document.getElementById('hostButton');
 const joinButton = document.getElementById('joinButton');
 const copyLinkButton = document.getElementById('copyLinkButton');
@@ -45,10 +50,23 @@ function setStatus(text) {
   statusEl.textContent = text;
 }
 
+function setSectionVisible(element, isVisible) {
+  element.classList.toggle('is-hidden', !isVisible);
+}
+
+function setInterfaceRole(role) {
+  const isJoinedPlayer = role === 'player';
+  setSectionVisible(roundControls, !isJoinedPlayer);
+  setSectionVisible(gameSettingsPanel, !isJoinedPlayer);
+  setSectionVisible(multiplayerPanel, !isJoinedPlayer);
+}
+
 function setMode(nextMode) {
   mode = nextMode;
   opponentLabelEl.textContent = mode === 'room' ? 'Opponent' : 'CPU';
+  opponentLaneLabelEl.textContent = mode === 'room' ? 'Opponent' : 'CPU';
   playerLabelEl.textContent = 'You';
+  playerLaneLabelEl.textContent = 'Player';
 }
 
 function setRoomLink(code) {
@@ -121,6 +139,7 @@ function startSoloGame() {
 
 function resetSoloGame() {
   setMode('solo');
+  setInterfaceRole('host');
   gameActive = false;
   clearTimeout(cpuInterval);
   cpuInterval = null;
@@ -136,6 +155,7 @@ function resetSoloGame() {
 
 function renderRoomState(state) {
   setMode('room');
+  setInterfaceRole(localPlayerId === 'p1' ? 'host' : 'player');
   targetScore = state.target;
   roomCode = state.code;
 

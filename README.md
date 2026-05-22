@@ -30,6 +30,7 @@ A simple browser game inspired by the state fair water gun challenge. Tap the bu
 
 ## Next steps
 
-- Add multiplayer via WebSocket / server
+- Simplify the `START` / `RESET` controls into a single context-aware button
+- Clean up abandoned local rooms after a period of inactivity
 - Add sound effects and animations
 - Add themes, streak counters, and power-ups
