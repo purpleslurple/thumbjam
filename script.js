@@ -40,8 +40,8 @@ const adaptiveMin = 0.72;
 const adaptiveMax = 1.48;
 
 const difficultySettings = {
-  easy: { min: 600, max: 950, multiplier: 1 },
-  medium: { min: 450, max: 800, multiplier: 1.1 },
+  easy: { min: 420, max: 720, multiplier: 1 },
+  medium: { min: 280, max: 520, multiplier: 1.15 },
   hard: { min: 140, max: 300, multiplier: 1.35 },
 };
 
@@ -89,17 +89,23 @@ function setSectionVisible(element, isVisible) {
   element.classList.toggle('is-hidden', !isVisible);
 }
 
+function setPlayingLock(isPlaying) {
+  document.body.classList.toggle('is-playing', isPlaying);
+}
+
 function setCountdown(value) {
   const isVisible = value !== null && value !== undefined;
   countdownText.textContent = isVisible ? value : '';
   setSectionVisible(countdownOverlay, isVisible);
 }
 
-function setInterfaceRole(role) {
-  const isJoinedPlayer = role === 'player';
-  setSectionVisible(roundControls, !isJoinedPlayer);
-  setSectionVisible(gameSettingsPanel, !isJoinedPlayer);
-  setSectionVisible(multiplayerPanel, !isJoinedPlayer);
+function setInterfaceState(state) {
+  const isJoinedPlayer = state === 'player';
+  const isPlaying = state === 'playing';
+  setPlayingLock(isPlaying);
+  setSectionVisible(roundControls, !isJoinedPlayer && !isPlaying);
+  setSectionVisible(gameSettingsPanel, !isJoinedPlayer && !isPlaying);
+  setSectionVisible(multiplayerPanel, !isJoinedPlayer && !isPlaying);
 }
 
 function setMode(nextMode) {
@@ -171,6 +177,7 @@ function clearSoloCountdown() {
 }
 
 function beginSoloRound() {
+  setInterfaceState('playing');
   gameActive = true;
   playButton.disabled = false;
   startButton.disabled = false;
@@ -181,6 +188,7 @@ function beginSoloRound() {
 
 function startSoloCountdown() {
   clearSoloCountdown();
+  setInterfaceState('playing');
   let countdown = 5;
   setCountdown(countdown);
   setStatus('Get ready...');
@@ -207,6 +215,7 @@ function startSoloCountdown() {
 
 function endSoloGame(winner) {
   gameActive = false;
+  setInterfaceState('setup');
   clearSoloCountdown();
   clearTimeout(cpuInterval);
   cpuInterval = null;
@@ -260,7 +269,7 @@ function startSoloGame() {
 
 function resetSoloGame() {
   setMode('solo');
-  setInterfaceRole('host');
+  setInterfaceState('setup');
   clearSoloCountdown();
   setCountdown(null);
   gameActive = false;
@@ -278,7 +287,9 @@ function resetSoloGame() {
 
 function renderRoomState(state) {
   setMode('room');
-  setInterfaceRole(localPlayerId === 'p1' ? 'host' : 'player');
+  const isPlayingState = state.status === 'countdown' || state.status === 'active';
+  const interfaceState = isPlayingState ? 'playing' : localPlayerId === 'p1' ? 'setup' : 'player';
+  setInterfaceState(interfaceState);
   targetScore = state.target;
   roomCode = state.code;
 
