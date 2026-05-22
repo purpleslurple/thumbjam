@@ -73,7 +73,7 @@ function clearCountdown(room) {
 function startCountdown(room) {
   clearCountdown(room);
   room.status = 'countdown';
-  room.countdown = 5;
+  room.countdown = 3;
   room.scores = { p1: 0, p2: 0 };
   room.winner = null;
   broadcast(room);
@@ -95,7 +95,7 @@ function startCountdown(room) {
       room.countdown = null;
       room.countdownTimer = null;
       broadcast(room);
-    }, 700);
+    }, 350);
   }
 
   room.countdownTimer = setTimeout(tick, 1000);

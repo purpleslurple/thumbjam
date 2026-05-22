@@ -10,6 +10,7 @@ const statusEl = document.getElementById('status');
 const countdownOverlay = document.getElementById('countdownOverlay');
 const countdownText = document.getElementById('countdownText');
 const playButton = document.getElementById('playButton');
+const playZone = document.querySelector('.play-zone');
 const startButton = document.getElementById('startButton');
 const resetButton = document.getElementById('resetButton');
 const roundControls = document.getElementById('roundControls');
@@ -189,7 +190,7 @@ function beginSoloRound() {
 function startSoloCountdown() {
   clearSoloCountdown();
   setInterfaceState('playing');
-  let countdown = 5;
+  let countdown = 3;
   setCountdown(countdown);
   setStatus('Get ready...');
 
@@ -207,7 +208,7 @@ function startSoloCountdown() {
     soloCountdownTimer = setTimeout(() => {
       soloCountdownTimer = null;
       beginSoloRound();
-    }, 700);
+    }, 350);
   }
 
   soloCountdownTimer = setTimeout(tick, 1000);
@@ -404,6 +405,10 @@ playButton.addEventListener('click', () => {
 });
 
 playButton.addEventListener('dblclick', (event) => {
+  event.preventDefault();
+});
+
+playZone.addEventListener('dblclick', (event) => {
   event.preventDefault();
 });
 

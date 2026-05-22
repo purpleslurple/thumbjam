@@ -20,6 +20,7 @@ body {
   color: var(--text);
   background: radial-gradient(circle at top, #1c4ca4 0%, #081c34 45%, #040a15 100%);
   padding: 0;
+  touch-action: manipulation;
 }
 
 body.is-playing {
@@ -211,6 +212,7 @@ body.is-playing .action-button {
 
 .play-zone {
   margin-top: auto;
+  touch-action: manipulation;
 }
 
 .play-button {
