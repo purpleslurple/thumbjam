@@ -28,16 +28,49 @@ let cpuScore = 0;
 let targetScore = Number(targetSelect.value);
 let gameActive = false;
 let cpuInterval = null;
+let soloCountdownTimer = null;
 let mode = 'solo';
 let roomCode = null;
 let localPlayerId = null;
 let roomEvents = null;
 
+const skillProfileKey = 'thumbjamSoloSkillProfile';
+const adaptiveStep = 0.08;
+const adaptiveMin = 0.72;
+const adaptiveMax = 1.48;
+
 const difficultySettings = {
   easy: { min: 600, max: 950, multiplier: 1 },
   medium: { min: 450, max: 800, multiplier: 1.1 },
-  hard: { min: 300, max: 650, multiplier: 1.2 },
+  hard: { min: 140, max: 300, multiplier: 1.35 },
 };
+
+function defaultSkillProfile() {
+  return Object.keys(difficultySettings).reduce((profile, difficulty) => {
+    profile[difficulty] = {
+      adjustment: 1,
+      streakResult: null,
+      streakCount: 0,
+      gamesPlayed: 0,
+    };
+    return profile;
+  }, {});
+}
+
+function loadSkillProfile() {
+  const defaults = defaultSkillProfile();
+  try {
+    const savedProfile = JSON.parse(localStorage.getItem(skillProfileKey)) || {};
+    return Object.keys(defaults).reduce((profile, difficulty) => {
+      profile[difficulty] = { ...defaults[difficulty], ...savedProfile[difficulty] };
+      return profile;
+    }, {});
+  } catch (error) {
+    return defaults;
+  }
+}
+
+let skillProfile = loadSkillProfile();
 
 function updateDisplay() {
   playerScoreEl.textContent = playerScore;
@@ -95,10 +128,89 @@ async function postJson(url, body = {}) {
   return payload;
 }
 
+function saveSkillProfile() {
+  try {
+    localStorage.setItem(skillProfileKey, JSON.stringify(skillProfile));
+  } catch (error) {
+    // Keep adaptive difficulty optional if storage is unavailable.
+  }
+}
+
+function currentDifficultyProfile() {
+  const difficulty = difficultySelect.value;
+  const defaults = defaultSkillProfile()[difficulty];
+  skillProfile[difficulty] = { ...defaults, ...skillProfile[difficulty] };
+  return skillProfile[difficulty];
+}
+
+function recordSoloResult(winner) {
+  const difficulty = difficultySelect.value;
+  const profile = currentDifficultyProfile();
+  const result = winner === 'player' ? 'win' : 'loss';
+
+  profile.gamesPlayed += 1;
+  profile.streakCount = profile.streakResult === result ? profile.streakCount + 1 : 1;
+  profile.streakResult = result;
+
+  if (profile.streakCount >= 3) {
+    const direction = result === 'win' ? 1 : -1;
+    profile.adjustment = Math.min(adaptiveMax, Math.max(adaptiveMin, profile.adjustment + adaptiveStep * direction));
+    profile.streakCount = 0;
+    profile.streakResult = null;
+  }
+
+  skillProfile[difficulty] = profile;
+  saveSkillProfile();
+}
+
+function clearSoloCountdown() {
+  if (soloCountdownTimer) {
+    clearTimeout(soloCountdownTimer);
+    soloCountdownTimer = null;
+  }
+}
+
+function beginSoloRound() {
+  gameActive = true;
+  playButton.disabled = false;
+  startButton.disabled = false;
+  setCountdown(null);
+  setStatus('Game on! Tap the button to add drops before the CPU reaches the target.');
+  cpuInterval = setTimeout(cpuStep, getCpuDelay());
+}
+
+function startSoloCountdown() {
+  clearSoloCountdown();
+  let countdown = 5;
+  setCountdown(countdown);
+  setStatus('Get ready...');
+
+  function tick() {
+    if (mode !== 'solo') return;
+
+    if (countdown > 1) {
+      countdown -= 1;
+      setCountdown(countdown);
+      soloCountdownTimer = setTimeout(tick, 1000);
+      return;
+    }
+
+    setCountdown('GO!');
+    soloCountdownTimer = setTimeout(() => {
+      soloCountdownTimer = null;
+      beginSoloRound();
+    }, 700);
+  }
+
+  soloCountdownTimer = setTimeout(tick, 1000);
+}
+
 function endSoloGame(winner) {
   gameActive = false;
+  clearSoloCountdown();
   clearTimeout(cpuInterval);
   cpuInterval = null;
+  recordSoloResult(winner);
   setStatus(winner === 'player' ? 'Winner! Your drops hit the target first.' : 'CPU wins! Try again for a better score.');
   playButton.disabled = true;
 }
@@ -116,8 +228,9 @@ function checkSoloWinner() {
 function getCpuDelay() {
   const difficulty = difficultySelect.value;
   const settings = difficultySettings[difficulty];
+  const profile = currentDifficultyProfile();
   const base = Math.random() * (settings.max - settings.min) + settings.min;
-  return base / settings.multiplier;
+  return base / (settings.multiplier * profile.adjustment);
 }
 
 function cpuStep() {
@@ -131,23 +244,24 @@ function cpuStep() {
 }
 
 function startSoloGame() {
-  if (gameActive) return;
+  if (gameActive || soloCountdownTimer) return;
   setMode('solo');
   playerScore = 0;
   cpuScore = 0;
   targetScore = Number(targetSelect.value);
-  gameActive = true;
-  playButton.disabled = false;
-  startButton.disabled = false;
+  gameActive = false;
+  playButton.disabled = true;
+  startButton.disabled = true;
   updateDisplay();
-  setStatus('Game on! Tap the button to add drops before the CPU reaches the target.');
   clearTimeout(cpuInterval);
-  cpuInterval = setTimeout(cpuStep, getCpuDelay());
+  cpuInterval = null;
+  startSoloCountdown();
 }
 
 function resetSoloGame() {
   setMode('solo');
   setInterfaceRole('host');
+  clearSoloCountdown();
   setCountdown(null);
   gameActive = false;
   clearTimeout(cpuInterval);

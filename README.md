@@ -24,6 +24,7 @@ A simple browser game inspired by the state fair water gun challenge. Tap the bu
 
 - Local single-player mode vs CPU
 - Local Wi-Fi head-to-head rooms
+- Adaptive solo difficulty based on win/loss streaks
 - Target drop selection
 - Difficulty settings
 - Responsive layout for desktop and mobile
