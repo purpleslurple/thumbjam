@@ -7,17 +7,21 @@ const opponentLaneLabelEl = document.getElementById('opponentLaneLabel');
 const playerTowerEl = document.getElementById('playerTower');
 const cpuTowerEl = document.getElementById('cpuTower');
 const statusEl = document.getElementById('status');
+const setupStatusEl = document.getElementById('setupStatus');
+const setupScreen = document.getElementById('setupScreen');
+const gameScreen = document.getElementById('gameScreen');
 const countdownOverlay = document.getElementById('countdownOverlay');
 const countdownText = document.getElementById('countdownText');
+const resultsOverlay = document.getElementById('resultsOverlay');
+const resultTitle = document.getElementById('resultTitle');
+const resultDetail = document.getElementById('resultDetail');
+const playAgainButton = document.getElementById('playAgainButton');
+const setupButton = document.getElementById('setupButton');
 const playButton = document.getElementById('playButton');
 const playZone = document.querySelector('.play-zone');
 const startButton = document.getElementById('startButton');
-const resetButton = document.getElementById('resetButton');
-const roundControls = document.getElementById('roundControls');
 const targetSelect = document.getElementById('targetSelect');
 const difficultySelect = document.getElementById('difficultySelect');
-const gameSettingsPanel = document.getElementById('gameSettingsPanel');
-const multiplayerPanel = document.getElementById('multiplayerPanel');
 const hostButton = document.getElementById('hostButton');
 const joinButton = document.getElementById('joinButton');
 const copyLinkButton = document.getElementById('copyLinkButton');
@@ -84,6 +88,7 @@ function updateDisplay() {
 
 function setStatus(text) {
   statusEl.textContent = text;
+  setupStatusEl.textContent = text;
 }
 
 function setSectionVisible(element, isVisible) {
@@ -94,19 +99,32 @@ function setPlayingLock(isPlaying) {
   document.body.classList.toggle('is-playing', isPlaying);
 }
 
+function setScreen(screen) {
+  const isGame = screen === 'game';
+  setSectionVisible(setupScreen, !isGame);
+  setSectionVisible(gameScreen, isGame);
+  setPlayingLock(isGame);
+}
+
 function setCountdown(value) {
   const isVisible = value !== null && value !== undefined;
   countdownText.textContent = isVisible ? value : '';
   setSectionVisible(countdownOverlay, isVisible);
 }
 
-function setInterfaceState(state) {
-  const isJoinedPlayer = state === 'player';
-  const isPlaying = state === 'playing';
-  setPlayingLock(isPlaying);
-  setSectionVisible(roundControls, !isJoinedPlayer && !isPlaying);
-  setSectionVisible(gameSettingsPanel, !isJoinedPlayer && !isPlaying);
-  setSectionVisible(multiplayerPanel, !isJoinedPlayer && !isPlaying);
+function setResults(isVisible, title = '', detail = '') {
+  resultTitle.textContent = title;
+  resultDetail.textContent = detail;
+  setSectionVisible(resultsOverlay, isVisible);
+}
+
+function setResultActionsVisible(isVisible) {
+  setSectionVisible(playAgainButton, isVisible);
+  setSectionVisible(setupButton, isVisible);
+}
+
+function setSetupStartLabel(text) {
+  startButton.textContent = text;
 }
 
 function setMode(nextMode) {
@@ -120,6 +138,22 @@ function setMode(nextMode) {
 function setRoomLink(code) {
   const link = `${window.location.origin}${window.location.pathname}?room=${code}`;
   roomLinkInput.value = link;
+}
+
+function closeRoomConnection() {
+  if (roomEvents) {
+    roomEvents.close();
+    roomEvents = null;
+  }
+}
+
+function returnToSetup() {
+  closeRoomConnection();
+  roomCode = null;
+  localPlayerId = null;
+  roomCodeInput.value = '';
+  roomLinkInput.value = '';
+  resetSoloGame();
 }
 
 async function postJson(url, body = {}) {
@@ -178,18 +212,19 @@ function clearSoloCountdown() {
 }
 
 function beginSoloRound() {
-  setInterfaceState('playing');
+  setScreen('game');
   gameActive = true;
   playButton.disabled = false;
-  startButton.disabled = false;
   setCountdown(null);
+  setResults(false);
   setStatus('Game on! Tap the button to add drops before the CPU reaches the target.');
   cpuInterval = setTimeout(cpuStep, getCpuDelay());
 }
 
 function startSoloCountdown() {
   clearSoloCountdown();
-  setInterfaceState('playing');
+  setScreen('game');
+  setResults(false);
   let countdown = 3;
   setCountdown(countdown);
   setStatus('Get ready...');
@@ -216,13 +251,18 @@ function startSoloCountdown() {
 
 function endSoloGame(winner) {
   gameActive = false;
-  setInterfaceState('setup');
   clearSoloCountdown();
   clearTimeout(cpuInterval);
   cpuInterval = null;
   recordSoloResult(winner);
-  setStatus(winner === 'player' ? 'Winner! Your drops hit the target first.' : 'CPU wins! Try again for a better score.');
   playButton.disabled = true;
+  setResultActionsVisible(true);
+  setStatus('Round complete.');
+  setResults(
+    true,
+    winner === 'player' ? 'Winner!' : 'CPU Wins',
+    winner === 'player' ? 'Your drops hit the target first.' : 'Try again for a better score.'
+  );
 }
 
 function checkSoloWinner() {
@@ -256,12 +296,12 @@ function cpuStep() {
 function startSoloGame() {
   if (gameActive || soloCountdownTimer) return;
   setMode('solo');
+  setSetupStartLabel('START SOLO');
   playerScore = 0;
   cpuScore = 0;
   targetScore = Number(targetSelect.value);
   gameActive = false;
   playButton.disabled = true;
-  startButton.disabled = true;
   updateDisplay();
   clearTimeout(cpuInterval);
   cpuInterval = null;
@@ -270,9 +310,12 @@ function startSoloGame() {
 
 function resetSoloGame() {
   setMode('solo');
-  setInterfaceState('setup');
+  setScreen('setup');
+  setSetupStartLabel('START SOLO');
   clearSoloCountdown();
   setCountdown(null);
+  setResults(false);
+  setResultActionsVisible(true);
   gameActive = false;
   clearTimeout(cpuInterval);
   cpuInterval = null;
@@ -280,7 +323,6 @@ function resetSoloGame() {
   cpuScore = 0;
   targetScore = Number(targetSelect.value);
   startButton.disabled = false;
-  resetButton.disabled = false;
   playButton.disabled = true;
   updateDisplay();
   setStatus('Press START to play');
@@ -288,9 +330,6 @@ function resetSoloGame() {
 
 function renderRoomState(state) {
   setMode('room');
-  const isPlayingState = state.status === 'countdown' || state.status === 'active';
-  const interfaceState = isPlayingState ? 'playing' : localPlayerId === 'p1' ? 'setup' : 'player';
-  setInterfaceState(interfaceState);
   targetScore = state.target;
   roomCode = state.code;
 
@@ -302,19 +341,38 @@ function renderRoomState(state) {
 
   playButton.disabled = state.status !== 'active';
   startButton.disabled = localPlayerId !== 'p1' || state.status === 'countdown' || state.status === 'active' || (state.status === 'waiting' && !state.players.p2);
-  resetButton.disabled = false;
+  setSetupStartLabel('START ROOM');
   setCountdown(state.countdown);
 
   if (state.status === 'countdown') {
+    setScreen('game');
+    setResults(false);
     setStatus(`Room ${state.code} starting...`);
   } else if (state.status === 'active') {
+    setScreen('game');
+    setResults(false);
     setStatus(`Room ${state.code} live! Tap fast.`);
   } else if (state.status === 'finished') {
-    setStatus(state.winner === localPlayerId ? 'Winner! Your drops hit the target first.' : 'Opponent wins! Try again for a better score.');
+    setScreen('game');
+    setStatus('Round complete.');
     playButton.disabled = true;
+    setResultActionsVisible(localPlayerId === 'p1');
+    setResults(
+      true,
+      state.winner === localPlayerId ? 'Winner!' : 'Opponent Wins',
+      localPlayerId === 'p1'
+        ? state.winner === localPlayerId ? 'Your drops hit the target first.' : 'Try again for a better score.'
+        : 'Waiting for host to start another round.'
+    );
   } else if (localPlayerId === 'p1') {
+    setScreen('setup');
+    setResults(false);
+    setResultActionsVisible(true);
     setStatus(state.players.p2 ? `Room ${state.code} ready. Press START.` : `Room ${state.code} created. Share the link.`);
   } else {
+    setScreen('game');
+    setResults(false);
+    setResultActionsVisible(false);
     setStatus(`Joined room ${state.code}. Waiting for host.`);
   }
 }
@@ -337,6 +395,7 @@ async function hostRoom() {
   try {
     const state = await postJson('/api/rooms', { target: Number(targetSelect.value) });
     localPlayerId = state.playerId;
+    setSetupStartLabel('START ROOM');
     roomCodeInput.value = state.code;
     setRoomLink(state.code);
     connectToRoom(state.code);
@@ -356,6 +415,7 @@ async function joinRoom(code) {
   try {
     const state = await postJson(`/api/rooms/${normalizedCode}/join`);
     localPlayerId = state.playerId;
+    setSetupStartLabel('START SOLO');
     roomCodeInput.value = state.code;
     setRoomLink(state.code);
     connectToRoom(state.code);
@@ -420,13 +480,15 @@ startButton.addEventListener('click', () => {
   }
 });
 
-resetButton.addEventListener('click', () => {
+playAgainButton.addEventListener('click', () => {
   if (mode === 'room') {
-    resetRoomGame();
+    startRoomGame();
   } else {
-    resetSoloGame();
+    startSoloGame();
   }
 });
+
+setupButton.addEventListener('click', returnToSetup);
 
 hostButton.addEventListener('click', hostRoom);
 

@@ -8,7 +8,50 @@
 </head>
 <body>
   <div class="game-shell">
-    <main class="play-surface">
+    <main id="setupScreen" class="setup-screen">
+      <header>
+        <h1>ThumbJam</h1>
+      </header>
+
+      <section id="gameSettingsPanel" class="settings-panel">
+        <label>
+          Target drops:
+          <select id="targetSelect">
+            <option value="25">25</option>
+            <option value="35" selected>35</option>
+            <option value="50">50</option>
+          </select>
+        </label>
+        <label>
+          Difficulty:
+          <select id="difficultySelect">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+      </section>
+
+      <p id="setupStatus" class="status">Press START to play</p>
+
+      <button id="startButton" class="action-button">START SOLO</button>
+
+      <section id="multiplayerPanel" class="settings-panel multiplayer-panel">
+        <button id="hostButton" class="action-button secondary">Host Game</button>
+        <label>
+          Room:
+          <input id="roomCodeInput" type="text" maxlength="4" placeholder="ABCD" />
+        </label>
+        <button id="joinButton" class="action-button secondary">Join Room</button>
+        <label class="room-link-row">
+          Join link:
+          <input id="roomLinkInput" type="text" readonly placeholder="Host a game to create a link" />
+        </label>
+        <button id="copyLinkButton" class="action-button secondary">Copy Link</button>
+      </section>
+    </main>
+
+    <main id="gameScreen" class="game-screen is-hidden">
       <header>
         <h1>ThumbJam</h1>
       </header>
@@ -41,48 +84,21 @@
         <button id="playButton" class="action-button play-button">Add Drop</button>
       </div>
 
-      <div id="roundControls" class="button-row">
-        <button id="startButton" class="action-button secondary">START</button>
-        <button id="resetButton" class="action-button secondary">RESET</button>
+      <div id="countdownOverlay" class="countdown-overlay is-hidden" aria-live="assertive">
+        <span id="countdownText">3</span>
+      </div>
+
+      <div id="resultsOverlay" class="results-overlay is-hidden" aria-live="assertive">
+        <div class="results-panel">
+          <h2 id="resultTitle">Winner!</h2>
+          <p id="resultDetail">Your drops hit the target first.</p>
+          <div class="button-row">
+            <button id="playAgainButton" class="action-button">Play Again</button>
+            <button id="setupButton" class="action-button secondary">Setup</button>
+          </div>
+        </div>
       </div>
     </main>
-
-    <div id="countdownOverlay" class="countdown-overlay is-hidden" aria-live="assertive">
-      <span id="countdownText">5</span>
-    </div>
-
-    <section id="gameSettingsPanel" class="settings-panel">
-      <label>
-        Target drops:
-        <select id="targetSelect">
-          <option value="25">25</option>
-          <option value="35" selected>35</option>
-          <option value="50">50</option>
-        </select>
-      </label>
-      <label>
-        Difficulty:
-        <select id="difficultySelect">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-      </label>
-    </section>
-
-    <section id="multiplayerPanel" class="settings-panel multiplayer-panel">
-      <button id="hostButton" class="action-button secondary">Host Game</button>
-      <label>
-        Room:
-        <input id="roomCodeInput" type="text" maxlength="4" placeholder="ABCD" />
-      </label>
-      <button id="joinButton" class="action-button secondary">Join Room</button>
-      <label class="room-link-row">
-        Join link:
-        <input id="roomLinkInput" type="text" readonly placeholder="Host a game to create a link" />
-      </label>
-      <button id="copyLinkButton" class="action-button secondary">Copy Link</button>
-    </section>
   </div>
 
   <script src="script.js"></script>

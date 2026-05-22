@@ -38,16 +38,27 @@ body.is-playing {
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
 
-.play-surface {
+.setup-screen {
+  display: grid;
+  gap: 18px;
+}
+
+.game-screen {
+  height: calc(100vh - 32px);
+  height: calc(100svh - 32px - env(safe-area-inset-bottom));
   min-height: calc(100vh - 32px);
   min-height: calc(100svh - 32px - env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  position: relative;
 }
 
 .countdown-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 10;
   display: grid;
@@ -60,6 +71,38 @@ body.is-playing {
   text-align: center;
   text-shadow: 0 14px 42px rgba(0, 0, 0, 0.44);
   pointer-events: none;
+}
+
+.results-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(4, 10, 21, 0.82);
+  touch-action: manipulation;
+}
+
+.results-panel {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: rgba(12, 24, 56, 0.96);
+  text-align: center;
+}
+
+.results-panel h2 {
+  margin: 0;
+  font-size: clamp(2rem, 10vw, 3.4rem);
+}
+
+.results-panel p {
+  margin: 0;
+  max-width: none;
 }
 
 header {
@@ -295,7 +338,8 @@ body.is-playing .action-button {
     box-shadow: var(--shadow);
   }
 
-  .play-surface {
+  .game-screen {
+    height: calc(100vh - 80px);
     min-height: calc(100vh - 80px);
   }
 }
