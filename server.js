@@ -26,6 +26,7 @@ function roomState(room) {
     code: room.code,
     target: room.target,
     status: room.status,
+    countdown: room.countdown,
     players: room.players,
     scores: room.scores,
     winner: room.winner,
@@ -50,6 +51,8 @@ function createRoom(target) {
     code,
     target,
     status: 'waiting',
+    countdown: null,
+    countdownTimer: null,
     players: { p1: true, p2: false },
     scores: { p1: 0, p2: 0 },
     winner: null,
@@ -57,6 +60,45 @@ function createRoom(target) {
   };
   rooms.set(code, room);
   return room;
+}
+
+function clearCountdown(room) {
+  if (room.countdownTimer) {
+    clearTimeout(room.countdownTimer);
+    room.countdownTimer = null;
+  }
+  room.countdown = null;
+}
+
+function startCountdown(room) {
+  clearCountdown(room);
+  room.status = 'countdown';
+  room.countdown = 5;
+  room.scores = { p1: 0, p2: 0 };
+  room.winner = null;
+  broadcast(room);
+
+  function tick() {
+    if (room.status !== 'countdown') return;
+
+    if (room.countdown > 1) {
+      room.countdown -= 1;
+      broadcast(room);
+      room.countdownTimer = setTimeout(tick, 1000);
+      return;
+    }
+
+    room.countdown = 'GO!';
+    broadcast(room);
+    room.countdownTimer = setTimeout(() => {
+      room.status = 'active';
+      room.countdown = null;
+      room.countdownTimer = null;
+      broadcast(room);
+    }, 700);
+  }
+
+  room.countdownTimer = setTimeout(tick, 1000);
 }
 
 function getRequestBody(request) {
@@ -161,15 +203,13 @@ async function handleApi(request, response) {
 
   if (route[3] === 'start') {
     room.target = Number(body.target) || room.target;
-    room.status = 'active';
-    room.scores = { p1: 0, p2: 0 };
-    room.winner = null;
-    broadcast(room);
+    startCountdown(room);
     sendJson(response, 200, roomState(room));
     return;
   }
 
   if (route[3] === 'reset') {
+    clearCountdown(room);
     room.status = 'waiting';
     room.scores = { p1: 0, p2: 0 };
     room.winner = null;

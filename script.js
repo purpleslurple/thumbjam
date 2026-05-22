@@ -7,6 +7,8 @@ const opponentLaneLabelEl = document.getElementById('opponentLaneLabel');
 const playerTowerEl = document.getElementById('playerTower');
 const cpuTowerEl = document.getElementById('cpuTower');
 const statusEl = document.getElementById('status');
+const countdownOverlay = document.getElementById('countdownOverlay');
+const countdownText = document.getElementById('countdownText');
 const playButton = document.getElementById('playButton');
 const startButton = document.getElementById('startButton');
 const resetButton = document.getElementById('resetButton');
@@ -52,6 +54,12 @@ function setStatus(text) {
 
 function setSectionVisible(element, isVisible) {
   element.classList.toggle('is-hidden', !isVisible);
+}
+
+function setCountdown(value) {
+  const isVisible = value !== null && value !== undefined;
+  countdownText.textContent = isVisible ? value : '';
+  setSectionVisible(countdownOverlay, isVisible);
 }
 
 function setInterfaceRole(role) {
@@ -140,6 +148,7 @@ function startSoloGame() {
 function resetSoloGame() {
   setMode('solo');
   setInterfaceRole('host');
+  setCountdown(null);
   gameActive = false;
   clearTimeout(cpuInterval);
   cpuInterval = null;
@@ -166,10 +175,13 @@ function renderRoomState(state) {
   updateDisplay();
 
   playButton.disabled = state.status !== 'active';
-  startButton.disabled = localPlayerId !== 'p1' || (state.status === 'waiting' && !state.players.p2);
+  startButton.disabled = localPlayerId !== 'p1' || state.status === 'countdown' || state.status === 'active' || (state.status === 'waiting' && !state.players.p2);
   resetButton.disabled = false;
+  setCountdown(state.countdown);
 
-  if (state.status === 'active') {
+  if (state.status === 'countdown') {
+    setStatus(`Room ${state.code} starting...`);
+  } else if (state.status === 'active') {
     setStatus(`Room ${state.code} live! Tap fast.`);
   } else if (state.status === 'finished') {
     setStatus(state.winner === localPlayerId ? 'Winner! Your drops hit the target first.' : 'Opponent wins! Try again for a better score.');
