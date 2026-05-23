@@ -205,6 +205,7 @@ p {
   font-size: 0.78rem;
   text-transform: uppercase;
   color: #c2d5ff;
+  overflow-wrap: anywhere;
 }
 
 .score-card p {
@@ -251,6 +252,14 @@ p {
   gap: 10px;
   align-items: center;
   justify-content: space-between;
+}
+
+.settings-panel .name-setting {
+  flex-basis: 100%;
+}
+
+.name-setting input {
+  flex: 1;
 }
 
 select {
@@ -356,10 +365,12 @@ body.is-playing .action-button {
   position: absolute;
   bottom: 12px;
   left: 12px;
+  right: 12px;
   color: #aab8ff;
   letter-spacing: 0.08em;
   font-size: 0.78rem;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .tower {

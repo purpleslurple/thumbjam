@@ -27,6 +27,7 @@ const playZone = document.querySelector('.play-zone');
 const settingsButton = document.getElementById('settingsButton');
 const doneSettingsButton = document.getElementById('doneSettingsButton');
 const startButton = document.getElementById('startButton');
+const playerNameInput = document.getElementById('playerNameInput');
 const targetSelect = document.getElementById('targetSelect');
 const difficultySelect = document.getElementById('difficultySelect');
 const hostButton = document.getElementById('hostButton');
@@ -47,6 +48,8 @@ let localPlayerId = null;
 let roomEvents = null;
 
 const skillProfileKey = 'thumbjamSoloSkillProfile';
+const playerNameKey = 'thumbjamPlayerName';
+const defaultPlayerName = 'Kimmy';
 const adaptiveStep = 0.08;
 const adaptiveMin = 0.72;
 const adaptiveMax = 1.48;
@@ -83,6 +86,47 @@ function loadSkillProfile() {
 }
 
 let skillProfile = loadSkillProfile();
+
+function loadPlayerName() {
+  try {
+    return localStorage.getItem(playerNameKey) || defaultPlayerName;
+  } catch (error) {
+    return defaultPlayerName;
+  }
+}
+
+let playerName = loadPlayerName();
+playerNameInput.value = playerName;
+
+function playerDisplayName() {
+  const name = playerName.trim();
+  return name || defaultPlayerName;
+}
+
+function playerShortName() {
+  const name = playerDisplayName();
+  if (name.toLowerCase() === 'kimmy') return 'Kim';
+  return name.split(/\s+/)[0] || defaultPlayerName;
+}
+
+function savePlayerName(value) {
+  playerName = value.trim();
+  try {
+    if (playerName) {
+      localStorage.setItem(playerNameKey, playerName);
+    } else {
+      localStorage.removeItem(playerNameKey);
+    }
+  } catch (error) {
+    // Keep personalization optional if storage is unavailable.
+  }
+  updatePlayerLabels();
+}
+
+function updatePlayerLabels() {
+  playerLabelEl.textContent = playerDisplayName();
+  playerLaneLabelEl.textContent = playerDisplayName();
+}
 
 function updateDisplay() {
   playerScoreEl.textContent = playerScore;
@@ -153,8 +197,7 @@ function setMode(nextMode) {
   mode = nextMode;
   opponentLabelEl.textContent = mode === 'room' ? 'Opponent' : 'CPU';
   opponentLaneLabelEl.textContent = mode === 'room' ? 'Opponent' : 'CPU';
-  playerLabelEl.textContent = 'You';
-  playerLaneLabelEl.textContent = 'Player';
+  updatePlayerLabels();
 }
 
 function setRoomLink(code) {
@@ -181,7 +224,7 @@ function returnToSetup() {
 function returnToGame() {
   if (mode === 'room') return;
   setScreen('game');
-  setStatus('Ready? Press START.');
+  setStatus(`Ready, ${playerDisplayName()}? Press START.`);
 }
 
 async function postJson(url, body = {}) {
@@ -247,7 +290,7 @@ function beginSoloRound() {
   setPlayButtonLabel('TAP');
   setCountdown(null);
   setResults(false);
-  setStatus('Game on! Tap the button to add drops before the CPU reaches the target.');
+  setStatus(`Go, ${playerShortName()}! Tap the button.`);
   cpuInterval = setTimeout(cpuStep, getCpuDelay());
 }
 
@@ -259,7 +302,7 @@ function startSoloCountdown() {
   setCountdown(countdown);
   setPlayButtonLabel('GET READY');
   setSettingsAvailable(false);
-  setStatus('Get ready...');
+  setStatus(`Get ready, ${playerShortName()}...`);
 
   function tick() {
     if (mode !== 'solo') return;
@@ -294,10 +337,10 @@ function endSoloGame(winner) {
   setStatus('Round complete.');
   setResults(
     true,
-    winner === 'player' ? 'Winner!' : 'CPU Wins',
-    winner === 'player' ? 'Your drops hit the target first.' : 'Try again for a better score.',
+    winner === 'player' ? 'You did it!' : 'Good try',
+    winner === 'player' ? `Great tapping, ${playerDisplayName()}.` : `Nice try, ${playerShortName()}.`,
     {
-      playerName: 'You',
+      playerName: playerDisplayName(),
       playerScore,
       opponentName: 'CPU',
       opponentScore: cpuScore,
@@ -368,7 +411,7 @@ function resetSoloGame(screen = 'game') {
   setSettingsAvailable(true);
   setPlayButtonLabel('START');
   updateDisplay();
-  setStatus('Ready? Press START.');
+  setStatus(`Ready, ${playerDisplayName()}? Press START.`);
 }
 
 function renderRoomState(state) {
@@ -409,7 +452,7 @@ function renderRoomState(state) {
         ? state.winner === localPlayerId ? 'Your drops hit the target first.' : 'Try again for a better score.'
         : 'Waiting for host to start another round.',
       {
-        playerName: 'You',
+        playerName: playerDisplayName(),
         playerScore,
         opponentName: 'Opponent',
         opponentScore: cpuScore,
@@ -565,6 +608,10 @@ copyLinkButton.addEventListener('click', async () => {
     roomLinkInput.select();
     setStatus('Join link selected. Use Copy from the edit menu.');
   }
+});
+
+playerNameInput.addEventListener('input', () => {
+  savePlayerName(playerNameInput.value);
 });
 
 targetSelect.addEventListener('change', () => {

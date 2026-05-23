@@ -25,13 +25,14 @@ A simple browser game inspired by the state fair water gun challenge. Tap the bu
 - Local single-player mode vs CPU
 - Local Wi-Fi head-to-head rooms
 - Adaptive solo difficulty based on win/loss streaks
+- Personalized player name saved locally
 - Target drop selection
 - Difficulty settings
 - Responsive layout for desktop and mobile
 
 ## Next steps
 
-- Simplify the `START` / `RESET` controls into a single context-aware button
+- Add an optional debug view for localStorage settings during play
 - Clean up abandoned local rooms after a period of inactivity
 - Add sound effects and animations
 - Add themes, streak counters, and power-ups
