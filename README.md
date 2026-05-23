@@ -11,6 +11,15 @@ A simple browser game inspired by the state fair water gun challenge. Tap the bu
 3. Tap `Add Drop` as fast as you can.
 4. The CPU will also accumulate drops automatically.
 
+### Offline iPhone solo mode
+
+1. Open `https://purpleslurple.github.io/thumbjam/` in Safari while online.
+2. Tap Share, then Add to Home Screen.
+3. Launch ThumbJam from the Home Screen once while still online so Safari can cache the app.
+4. Solo mode should continue to open from the Home Screen without a network connection.
+
+Head-to-head rooms still require a reachable local server and Wi-Fi connection.
+
 ### Local head-to-head mode
 
 1. Run `npm start`.
