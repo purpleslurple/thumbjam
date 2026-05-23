@@ -100,6 +100,37 @@ body.is-playing {
   font-size: clamp(2rem, 10vw, 3.4rem);
 }
 
+.result-score-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.result-score-card {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 14px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+
+.result-score-card span {
+  overflow-wrap: anywhere;
+  color: #d8e4ff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.result-score-card strong {
+  font-size: clamp(2.1rem, 12vw, 4rem);
+  line-height: 0.95;
+}
+
 .results-panel p {
   margin: 0;
   max-width: none;
@@ -107,6 +138,34 @@ body.is-playing {
 
 header {
   text-align: center;
+}
+
+.game-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+}
+
+.settings-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #d8e4ff;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.settings-button:disabled {
+  opacity: 0.32;
+  cursor: default;
 }
 
 h1 {
@@ -231,7 +290,7 @@ input::placeholder {
 
 .button-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 10px;
 }
 

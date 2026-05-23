@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="game-shell">
-    <main id="setupScreen" class="setup-screen">
+    <main id="setupScreen" class="setup-screen is-hidden">
       <header>
         <h1>ThumbJam</h1>
       </header>
@@ -35,6 +35,7 @@
       <p id="setupStatus" class="status">Press START to play</p>
 
       <button id="startButton" class="action-button">START SOLO</button>
+      <button id="doneSettingsButton" class="action-button secondary">Done</button>
 
       <section id="multiplayerPanel" class="settings-panel multiplayer-panel">
         <button id="hostButton" class="action-button secondary">Host Game</button>
@@ -51,9 +52,10 @@
       </section>
     </main>
 
-    <main id="gameScreen" class="game-screen is-hidden">
-      <header>
+    <main id="gameScreen" class="game-screen">
+      <header class="game-header">
         <h1>ThumbJam</h1>
+        <button id="settingsButton" class="settings-button" aria-label="Settings">Settings</button>
       </header>
 
       <div class="scoreboard">
@@ -81,7 +83,7 @@
       <p id="status" class="status">Press START to play</p>
 
       <div class="play-zone">
-        <button id="playButton" class="action-button play-button">Add Drop</button>
+        <button id="playButton" class="action-button play-button">START</button>
       </div>
 
       <div id="countdownOverlay" class="countdown-overlay is-hidden" aria-live="assertive">
@@ -91,10 +93,20 @@
       <div id="resultsOverlay" class="results-overlay is-hidden" aria-live="assertive">
         <div class="results-panel">
           <h2 id="resultTitle">Winner!</h2>
+          <div id="resultScoreSummary" class="result-score-summary" aria-label="Final score">
+            <div class="result-score-card">
+              <span id="resultPlayerName">You</span>
+              <strong id="resultPlayerScore">0</strong>
+            </div>
+            <div class="result-score-card">
+              <span id="resultOpponentName">CPU</span>
+              <strong id="resultOpponentScore">0</strong>
+            </div>
+          </div>
           <p id="resultDetail">Your drops hit the target first.</p>
           <div class="button-row">
             <button id="playAgainButton" class="action-button">Play Again</button>
-            <button id="setupButton" class="action-button secondary">Setup</button>
+            <button id="setupButton" class="action-button secondary">Settings</button>
           </div>
         </div>
       </div>
