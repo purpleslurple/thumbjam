@@ -34,9 +34,7 @@ Head-to-head rooms still require a reachable local server and Wi-Fi connection.
 - Local single-player mode vs CPU
 - Local Wi-Fi head-to-head rooms
 - Adaptive solo difficulty based on win/loss streaks
-- Personalized player name saved locally
-- Target drop selection
-- Difficulty settings
+- Player name, target drops, difficulty, and score display saved locally
 - Responsive layout for desktop and mobile
 
 ## Next steps

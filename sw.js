@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thumbjam-offline-v2';
+const CACHE_NAME = 'thumbjam-offline-v3';
 const APP_SHELL = [
   './',
   './index.html',

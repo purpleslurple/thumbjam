@@ -55,8 +55,12 @@ let roomEvents = null;
 
 const skillProfileKey = 'thumbjamSoloSkillProfile';
 const playerNameKey = 'thumbjamPlayerName';
+const targetScoreKey = 'thumbjamTargetScore';
+const difficultyKey = 'thumbjamDifficulty';
 const scoreDisplayKey = 'thumbjamScoreDisplay';
 const defaultPlayerName = 'Kimmy';
+const defaultTargetScore = '35';
+const defaultDifficulty = 'medium';
 const defaultScoreDisplay = 'tubes';
 const adaptiveStep = 0.08;
 const adaptiveMin = 0.72;
@@ -105,6 +109,27 @@ function loadPlayerName() {
 
 let playerName = loadPlayerName();
 playerNameInput.value = playerName;
+
+function loadSelectedValue(key, allowedValues, defaultValue) {
+  try {
+    const savedValue = localStorage.getItem(key);
+    return allowedValues.includes(savedValue) ? savedValue : defaultValue;
+  } catch (error) {
+    return defaultValue;
+  }
+}
+
+function saveSelectedValue(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    // Keep preferences optional if storage is unavailable.
+  }
+}
+
+targetSelect.value = loadSelectedValue(targetScoreKey, ['25', '35', '50'], defaultTargetScore);
+difficultySelect.value = loadSelectedValue(difficultyKey, Object.keys(difficultySettings), defaultDifficulty);
+targetScore = Number(targetSelect.value);
 
 function loadScoreDisplay() {
   try {
@@ -657,11 +682,13 @@ playerNameInput.addEventListener('input', () => {
 });
 
 targetSelect.addEventListener('change', () => {
+  saveSelectedValue(targetScoreKey, targetSelect.value);
   targetScore = Number(targetSelect.value);
   if (!gameActive && mode === 'solo') updateDisplay();
 });
 
 difficultySelect.addEventListener('change', () => {
+  saveSelectedValue(difficultyKey, difficultySelect.value);
   if (gameActive && mode === 'solo') {
     clearTimeout(cpuInterval);
     cpuInterval = setTimeout(cpuStep, getCpuDelay());
