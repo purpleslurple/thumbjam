@@ -135,6 +135,8 @@ function updateDisplay() {
   const cpuHeight = Math.min(100, (cpuScore / targetScore) * 100);
   playerTowerEl.style.height = `${playerHeight}%`;
   cpuTowerEl.style.height = `${cpuHeight}%`;
+  playerTowerEl.closest('.lane').style.setProperty('--progress', `${playerHeight}%`);
+  cpuTowerEl.closest('.lane').style.setProperty('--progress', `${cpuHeight}%`);
 }
 
 function setStatus(text) {

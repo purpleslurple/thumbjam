@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body>
   <div class="game-shell">
@@ -81,11 +81,17 @@
 
       <section class="arena">
         <div class="lane">
-          <div class="tower" id="playerTower"></div>
+          <div class="score-tube" aria-hidden="true">
+            <div class="tower" id="playerTower"></div>
+            <div class="score-float"></div>
+          </div>
           <span id="playerLaneLabel">Player</span>
         </div>
         <div class="lane cpu-lane">
-          <div class="tower" id="cpuTower"></div>
+          <div class="score-tube" aria-hidden="true">
+            <div class="tower" id="cpuTower"></div>
+            <div class="score-float"></div>
+          </div>
           <span id="opponentLaneLabel">CPU</span>
         </div>
       </section>
