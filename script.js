@@ -24,17 +24,23 @@ const playAgainButton = document.getElementById('playAgainButton');
 const setupButton = document.getElementById('setupButton');
 const playButton = document.getElementById('playButton');
 const playZone = document.querySelector('.play-zone');
+const arenaEl = document.getElementById('arena');
 const settingsButton = document.getElementById('settingsButton');
 const doneSettingsButton = document.getElementById('doneSettingsButton');
 const startButton = document.getElementById('startButton');
 const playerNameInput = document.getElementById('playerNameInput');
 const targetSelect = document.getElementById('targetSelect');
 const difficultySelect = document.getElementById('difficultySelect');
+const scoreDisplaySelect = document.getElementById('scoreDisplaySelect');
 const hostButton = document.getElementById('hostButton');
 const joinButton = document.getElementById('joinButton');
 const copyLinkButton = document.getElementById('copyLinkButton');
 const roomCodeInput = document.getElementById('roomCodeInput');
 const roomLinkInput = document.getElementById('roomLinkInput');
+const playerRaceCarEl = document.getElementById('playerRaceCar');
+const cpuRaceCarEl = document.getElementById('cpuRaceCar');
+const playerRaceLabelEl = document.getElementById('playerRaceLabel');
+const opponentRaceLabelEl = document.getElementById('opponentRaceLabel');
 
 let playerScore = 0;
 let cpuScore = 0;
@@ -49,7 +55,9 @@ let roomEvents = null;
 
 const skillProfileKey = 'thumbjamSoloSkillProfile';
 const playerNameKey = 'thumbjamPlayerName';
+const scoreDisplayKey = 'thumbjamScoreDisplay';
 const defaultPlayerName = 'Kimmy';
+const defaultScoreDisplay = 'tubes';
 const adaptiveStep = 0.08;
 const adaptiveMin = 0.72;
 const adaptiveMax = 1.48;
@@ -98,6 +106,33 @@ function loadPlayerName() {
 let playerName = loadPlayerName();
 playerNameInput.value = playerName;
 
+function loadScoreDisplay() {
+  try {
+    const savedDisplay = localStorage.getItem(scoreDisplayKey);
+    return savedDisplay === 'race' ? 'race' : defaultScoreDisplay;
+  } catch (error) {
+    return defaultScoreDisplay;
+  }
+}
+
+function applyScoreDisplay(display) {
+  const safeDisplay = display === 'race' ? 'race' : defaultScoreDisplay;
+  scoreDisplaySelect.value = safeDisplay;
+  arenaEl.classList.toggle('score-display-race', safeDisplay === 'race');
+}
+
+function saveScoreDisplay(display) {
+  const safeDisplay = display === 'race' ? 'race' : defaultScoreDisplay;
+  try {
+    localStorage.setItem(scoreDisplayKey, safeDisplay);
+  } catch (error) {
+    // Keep the setting optional if storage is unavailable.
+  }
+  applyScoreDisplay(safeDisplay);
+}
+
+applyScoreDisplay(loadScoreDisplay());
+
 function playerDisplayName() {
   const name = playerName.trim();
   return name || defaultPlayerName;
@@ -126,6 +161,7 @@ function savePlayerName(value) {
 function updatePlayerLabels() {
   playerLabelEl.textContent = playerDisplayName();
   playerLaneLabelEl.textContent = playerDisplayName();
+  playerRaceLabelEl.textContent = playerDisplayName();
 }
 
 function updateDisplay() {
@@ -137,6 +173,8 @@ function updateDisplay() {
   cpuTowerEl.style.height = `${cpuHeight}%`;
   playerTowerEl.closest('.lane').style.setProperty('--progress', `${playerHeight}%`);
   cpuTowerEl.closest('.lane').style.setProperty('--progress', `${cpuHeight}%`);
+  playerRaceCarEl.style.setProperty('--turn', `${playerHeight * 3.6}deg`);
+  cpuRaceCarEl.style.setProperty('--turn', `${cpuHeight * 3.6}deg`);
 }
 
 function setStatus(text) {
@@ -199,6 +237,7 @@ function setMode(nextMode) {
   mode = nextMode;
   opponentLabelEl.textContent = mode === 'room' ? 'Opponent' : 'CPU';
   opponentLaneLabelEl.textContent = mode === 'room' ? 'Opponent' : 'CPU';
+  opponentRaceLabelEl.textContent = mode === 'room' ? 'Opponent' : 'CPU';
   updatePlayerLabels();
 }
 
@@ -425,6 +464,7 @@ function renderRoomState(state) {
   playerScore = state.scores[localPlayerId] || 0;
   cpuScore = state.scores[opponentId] || 0;
   opponentLabelEl.textContent = state.players[opponentId] ? 'Opponent' : 'Waiting';
+  opponentRaceLabelEl.textContent = state.players[opponentId] ? 'Opponent' : 'Waiting';
   updateDisplay();
 
   playButton.disabled = state.status !== 'active';
@@ -626,6 +666,10 @@ difficultySelect.addEventListener('change', () => {
     clearTimeout(cpuInterval);
     cpuInterval = setTimeout(cpuStep, getCpuDelay());
   }
+});
+
+scoreDisplaySelect.addEventListener('change', () => {
+  saveScoreDisplay(scoreDisplaySelect.value);
 });
 
 const roomFromUrl = new URLSearchParams(window.location.search).get('room');

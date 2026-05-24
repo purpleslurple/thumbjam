@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=14" />
 </head>
 <body>
   <div class="game-shell">
@@ -38,6 +38,13 @@
             <option value="easy">Easy</option>
             <option value="medium" selected>Medium</option>
             <option value="hard">Hard</option>
+          </select>
+        </label>
+        <label>
+          Score display:
+          <select id="scoreDisplaySelect">
+            <option value="tubes" selected>Tubes</option>
+            <option value="race">Circle Track</option>
           </select>
         </label>
       </section>
@@ -79,7 +86,16 @@
         </div>
       </div>
 
-      <section class="arena">
+      <section class="arena" id="arena">
+        <div class="race-track" aria-hidden="true">
+          <span class="race-start-line"></span>
+          <span id="playerRaceCar" class="race-car player-race-car"></span>
+          <span id="cpuRaceCar" class="race-car cpu-race-car"></span>
+          <div class="race-key">
+            <span id="playerRaceLabel">Player</span>
+            <span id="opponentRaceLabel">CPU</span>
+          </div>
+        </div>
         <div class="lane">
           <div class="score-tube" aria-hidden="true">
             <div class="tower" id="playerTower"></div>
